@@ -10,7 +10,7 @@ public class Parse {
                                 AND   = "\\s+and\\s+";
 
     // Stage 1 syntax, contains the command name.
-    private static final Pattern CREATE_CMD = Pattern.compile("create table " + REST),
+    private static final Pattern CREATE_CMD = Pattern.compile("\\s*create table " + REST),
                                  LOAD_CMD   = Pattern.compile("load " + REST),
                                  STORE_CMD  = Pattern.compile("store " + REST),
                                  DROP_CMD   = Pattern.compile("drop table " + REST),
@@ -31,12 +31,21 @@ public class Parse {
                                                "\\s*(?:,\\s*.+?\\s*)*)");
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.err.println("Expected a single query argument");
-            return;
-        }
+//        if (args.length != 1) {
+//            System.err.println("Expected a single query argument");
+//            return;
+//        }
+//
+//        eval(args[0]);
+        Pattern test = Pattern.compile("(\\S+)\\s+\\(\\s*(\\S+\\s+\\S+\\s*" +
+                "(?:,\\s*\\S+\\s+\\S+\\s*)*)\\)");
 
-        eval(args[0]);
+        Matcher m = test.matcher("  tableName  (abc string , dog int)");
+
+        System.out.println(m.matches());
+        for (int i = 0; i <= m.groupCount(); i++)
+            System.out.println(m.group(i));
+        System.out.println(m.groupCount());
     }
 
     private static void eval(String query) {

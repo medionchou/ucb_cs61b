@@ -36,8 +36,8 @@ public class LinkedListDequeTest {
 	public static void addIsEmptySizeTest() {
 		System.out.println("Running add/isEmpty/Size test.");
 		System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
-		/*
-		LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
+
+		ArrayDeque<String> lld1 = new ArrayDeque<String>();
 
 		boolean passed = checkEmpty(true, lld1.isEmpty());
 
@@ -51,14 +51,15 @@ public class LinkedListDequeTest {
 		lld1.addLast("middle");
 		passed = checkSize(2, lld1.size()) && passed;
 
-		lld1.addLast("back");
+		lld1.addFirst("back");
 		passed = checkSize(3, lld1.size()) && passed;
+
 
 		System.out.println("Printing out deque: ");
 		lld1.printDeque();
 
 		printTestStatus(passed);
-		*/
+
 	}
 
 	/** Adds an item, then removes an item, and ensures that dll is empty afterwards. */
@@ -67,8 +68,8 @@ public class LinkedListDequeTest {
 		System.out.println("Running add/remove test.");
 
 		System.out.println("Make sure to uncomment the lines below (and delete this print statement).");
-		/*
-		LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+
+		ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
 		// should be empty 
 		boolean passed = checkEmpty(true, lld1.isEmpty());
 
@@ -81,12 +82,39 @@ public class LinkedListDequeTest {
 		passed = checkEmpty(true, lld1.isEmpty()) && passed;
 
 		printTestStatus(passed);
-		*/
+	}
+
+	public static void testRecursiveGet() {
+		LinkedListDeque<Integer> lld1 = new LinkedListDeque<>();
+
+		lld1.addLast(10);
+		lld1.addLast(8);
+		lld1.addLast(7);
+
+		boolean passed = true;
+
+		Integer item = lld1.getRecursive(2);
+		Integer item1 = lld1.get(2);
+
+		passed = item.equals(7) && item1.equals(7) && passed;
+
+		lld1 = new LinkedListDeque<>();
+
+		item = lld1.get(3);
+		item1 = lld1.getRecursive(4);
+		passed =  item == null && item1 == null && passed;
+
+
+		printTestStatus(passed);
+
 	}
 
 	public static void main(String[] args) {
 		System.out.println("Running tests.\n");
 		addIsEmptySizeTest();
 		addRemoveTest();
+		testRecursiveGet();
+
+
 	}
 } 

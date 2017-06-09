@@ -8,10 +8,12 @@ public class Main {
     private static final String EXIT   = "exit";
     private static final String PROMPT = "> ";
 
+
     public static void main(String[] args) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         Database db = new Database();
         System.out.print(PROMPT);
+
 
         String line = "";
         while ((line = in.readLine()) != null) {

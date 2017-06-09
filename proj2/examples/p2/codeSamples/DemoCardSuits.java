@@ -1,4 +1,5 @@
-package p2.codeSamples;
+package examples.p2.codeSamples;
+
 
 public class DemoCardSuits {
 	/** Brief demonstration of how enums work in Java.
