@@ -11,6 +11,8 @@ public enum Type {
     FLOAT("float");
 
     private final String name;
+    private static final Pattern INTEGER_MATCHER = Pattern.compile("^[-+]?\\d+?"),
+            FLOAT_MATCHER = Pattern.compile("^[-+]?\\d*\\.\\d+?");
 
 
     Type(String name) {
@@ -20,8 +22,6 @@ public enum Type {
     public String toString() {
         return name;
     }
-    private static final Pattern INTEGER_MATCHER = Pattern.compile("^[-+]?\\d+?"),
-                                 FLOAT_MATCHER = Pattern.compile("^[-+]?\\d*\\.\\d+?");
 
     public static Type conversion(String type) {
         switch (type) {
@@ -36,8 +36,10 @@ public enum Type {
         }
     }
 
-    public static Type checkType(String content, Type colType) {
+    public static Type isTypeMatched(String content, Type colType) {
         Type curType = null;
+        if (content.length() == 0) return null;
+
         if (content.charAt(0) == '\'') curType = Type.STRING;
         else {
             if (content.equals("NOVALUE")) return colType;
@@ -49,7 +51,23 @@ public enum Type {
         else return null;
     }
 
+    public static Type evaluateType(Value v1, Value v2) {
+        Type newType;
+
+        if (v1.getType() == v2.getType()) newType = v1.getType();
+        else {
+            if (v1.getType().equals(v2.getType())) newType = v1.getType();
+            else if ((v1.getType().equals(Type.INTEGER) && v2.getType().equals(Type.FLOAT)) ||
+                    (v1.getType().equals(Type.FLOAT) && v2.getType().equals(Type.INTEGER))) {
+                newType = Type.FLOAT;
+            }
+            else throw new UnsupportedOperationException(Type.STRING +
+                        " is only allowed to operate with 'string' type.");
+        }
+
+        return newType;
+    }
+
     public static void main(String[] args) {
-        System.out.println(FLOAT_MATCHER.matcher("1.0").matches());
     }
 }

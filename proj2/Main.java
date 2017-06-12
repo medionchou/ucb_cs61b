@@ -15,7 +15,7 @@ public class Main {
         System.out.print(PROMPT);
 
 
-        String line = "";
+        String line;
         while ((line = in.readLine()) != null) {
             if (EXIT.equals(line)) {
                 break;

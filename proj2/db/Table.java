@@ -14,7 +14,6 @@ public class Table {
 
     private List<Row> rows;
     private Header header;
-    private String tableName;
     private int colNum;
 
     public Table(String tableFile) throws IOException {
@@ -28,7 +27,7 @@ public class Table {
         while ((buf = br.readLine()) != null) {
 
             if (firstLine) {
-                parseHeader(buf, tableFile);
+                parseHeader(buf);
                 firstLine = false;
             } else {
                 addRow(buf);
@@ -36,8 +35,8 @@ public class Table {
         }
     }
 
-    public Table(String tableName, String[] colName, Type[] colType) {
-        initTable(tableName, colName, colType);
+    public Table(String[] colName, Type[] colType) {
+        initTable(colName, colType);
     }
 
 
@@ -48,7 +47,7 @@ public class Table {
 
 
         for (int i = 0; i < result.length; i++) {
-            Type newColType = Type.checkType(result[i], header.getColumnType(i));
+            Type newColType = Type.isTypeMatched(result[i], header.getColumnType(i));
             if (newColType == null) throw new IllegalArgumentException("Value " + result[i] + " in column " + (i + 1) + " does not match the column type.");
 
             values[i] = new Value(result[i], newColType);
@@ -68,8 +67,7 @@ public class Table {
 
     }
 
-    private void initTable(String tableName, String[] colName, Type[] colType) {
-        this.tableName = tableName;
+    private void initTable(String[] colName, Type[] colType) {
         header = new Header(colName, colType);
         rows = new ArrayList<>();
         colNum = colName.length;
@@ -95,8 +93,13 @@ public class Table {
         return rows.size();
     }
 
-    public void join(Table... table) {
+    public void join(String[] colName, Table... table) {
 
+    }
+
+    public Table operateBy(Expression... exprs) {
+
+        return null;
     }
 
     public String print() {
@@ -104,7 +107,7 @@ public class Table {
     }
 
 
-    private void parseHeader(String headerStr, String tableFile) {
+    private void parseHeader(String headerStr) {
         String[] result = headerStr.split(",");
         String[] colName = new String[result.length];
         Type[] colType = new Type[result.length];
@@ -114,7 +117,7 @@ public class Table {
             colName[i] = result[i].substring(0, idx);
             colType[i] = Type.conversion(result[i].substring(idx+1, result[i].length()));
         }
-        initTable(tableFile, colName, colType);
+        initTable(colName, colType);
     }
 
     @Override
@@ -129,17 +132,9 @@ public class Table {
     }
 
     public static void main(String[] args) {
-        String a = "+0033";
-
-        Pattern p = Pattern.compile("^[-+]?\\d+?");
-        Pattern p2 = Pattern.compile("^[-+]?\\d*\\.\\d+?");
-        Matcher m = p.matcher(a);
-        Matcher m2 = p2.matcher(a);
 
 
-        System.out.println(m.matches());
-        System.out.println(m2.matches());
-        System.out.println(Float.parseFloat(a));
+
     }
 
 }

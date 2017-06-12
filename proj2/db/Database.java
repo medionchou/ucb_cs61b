@@ -10,6 +10,10 @@ public class Database {
         // YOUR CODE HERE
     }
 
+    public void select() {
+
+    }
+
     public String transact(String query) {
         return "YOUR CODE HERE";
     }
