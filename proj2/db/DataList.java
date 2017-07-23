@@ -2,11 +2,12 @@ package db;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 /**
  * Created by medionchou on 2017/5/27.
  */
-public abstract class DataList {
+public abstract class DataList implements Iterable<Value> {
 
     protected List<Value> values;
 
@@ -29,6 +30,10 @@ public abstract class DataList {
     public void addItems(Value... val) {
         for (Value v : val)
             values.add(v);
+    }
+
+    public Iterator<Value> iterator() {
+        return values.iterator();
     }
 
     public String toString() {

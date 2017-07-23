@@ -32,7 +32,7 @@ public enum Type {
             case "int":
                 return Type.INTEGER;
             default:
-                throw new IllegalArgumentException(type + " is not allowed");
+                throw new IllegalArgumentException("column type '" + type + "' is not allowed");
         }
     }
 
@@ -42,8 +42,7 @@ public enum Type {
 
         if (content.charAt(0) == '\'') curType = Type.STRING;
         else {
-            if (content.equals("NOVALUE")) return colType;
-            else if (content.equals("NaN")) return colType;
+            if (content.equals("NOVALUE") || content.equals("NaN")) return colType;
             else if (INTEGER_MATCHER.matcher(content).matches()) curType = Type.INTEGER;
             else if (FLOAT_MATCHER.matcher(content).matches()) curType = Type.FLOAT;
         }
@@ -55,15 +54,13 @@ public enum Type {
         Type newType;
 
         if (v1.getType() == v2.getType()) newType = v1.getType();
-        else {
-            if (v1.getType().equals(v2.getType())) newType = v1.getType();
-            else if ((v1.getType().equals(Type.INTEGER) && v2.getType().equals(Type.FLOAT)) ||
+        else if ((v1.getType().equals(Type.INTEGER) && v2.getType().equals(Type.FLOAT)) ||
                     (v1.getType().equals(Type.FLOAT) && v2.getType().equals(Type.INTEGER))) {
-                newType = Type.FLOAT;
-            }
-            else throw new UnsupportedOperationException(Type.STRING +
-                        " is only allowed to operate with 'string' type.");
+            newType = Type.FLOAT;
         }
+        else throw new UnsupportedOperationException(Type.STRING +
+                        " is only allowed to operate with 'string' type.");
+
 
         return newType;
     }

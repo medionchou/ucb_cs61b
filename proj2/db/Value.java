@@ -13,7 +13,7 @@ public class Value {
 
     public Value(String content, Type type) {
         if (Type.isTypeMatched(content, type) == null)
-            throw new IllegalArgumentException("content \"" + content + "\" does not match the " + type + " type.");
+            throw new IllegalArgumentException("content \"" + content + "\" does not match " + type + " type.");
         this.content = content;
         this.type = type;
     }
@@ -93,7 +93,21 @@ public class Value {
     }
 
     public String strVal() {
-        return getContent();
+        return content;
+    }
+
+    public Object value() {
+        if (content.equals("NaN") || content.equals("NOVALUE")) return content;
+
+        switch (type) {
+            case FLOAT:
+                return Float.parseFloat(content);
+            case INTEGER:
+                return Integer.parseInt(content);
+            case STRING:
+                return content;
+        }
+        throw new UnsupportedOperationException("Not a valid type " + type);
     }
 
     @Override
@@ -127,7 +141,7 @@ public class Value {
     }
 
     public String toString() {
-        return content + "(" + type + ")";
+        return content;
     }
 
     public static void main(String[] args) {

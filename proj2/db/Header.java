@@ -1,27 +1,32 @@
 package db;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.*;
+
 
 /**
  * Created by medionchou on 2017/5/27.
  */
-public class Header {
+public class Header implements Iterable<ColumnName> {
 
     private LinkedHashMap<String, Column> headerMap;
     private Type[] type;
+    private ArrayList<ColumnName> colNameList;
+
+
+    @Override
+    public Iterator<ColumnName> iterator() {
+        return colNameList.iterator();
+    }
 
     public Header(String[] colName, Type[] theType) {
         type = theType;
+        colNameList = new ArrayList<>();
         headerMap = new LinkedHashMap<>();
 
-        for (String str : colName) {
-            headerMap.put(str, new Column());
+        for (int i = 0; i < colName.length; i++) {
+            headerMap.put(colName[i], new Column());
+            colNameList.add(new ColumnName(colName[i], theType[i]));
         }
-
     }
 
 
@@ -38,15 +43,15 @@ public class Header {
     }
 
     public Column getColumn(int index) {
-        int count = 0;
-        for (String s : headerMap.keySet()) {
-            if (count == index) return headerMap.get(s);
-            count += 1;
-        }
-
-        return null;
+        ColumnName cn = colNameList.get(index);
+        return headerMap.get(cn.getColName());
     }
 
+    public ColumnName getColumnName(int index) {
+        return colNameList.get(index);
+    }
+
+    public int colCount() {return headerMap.size();}
 
     public Type getColumnType(int col) {
         return type[col];
@@ -56,12 +61,12 @@ public class Header {
     public String toString() {
         int i = 0;
         StringBuffer sb = new StringBuffer();
-        for (String str : headerMap.keySet()) {
-            sb.append(str + " " + type[i]);
-            if (i < type.length - 1) sb.append(",");
+
+        for (ColumnName cn : colNameList) {
+            sb.append(cn.getColName() + " " + cn.getType());
+            if (i < colNameList.size() - 1) sb.append(",");
             i += 1;
         }
-
         return sb.toString();
     }
 

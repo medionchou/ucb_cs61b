@@ -3,13 +3,8 @@ package test;
 
 import db.Column;
 import db.Table;
-import db.Type;
-import db.Value;
-import org.junit.Before;
 import org.junit.Test;
 
-
-import java.lang.annotation.Target;
 
 import static org.junit.Assert.*;
 
@@ -34,14 +29,14 @@ public class TestTable {
     @Test
     public void testAddRow_string() throws Exception {
         Table table = new Table("examples/fans.tbl");
-        int size = table.size();
+        int size = table.rowCount();
         String testStr = "'BUG','GUH','DIE'";
         StringBuilder sb = new StringBuilder(table.toString());
 
         sb.append(testStr + "\n");
         table.addRow(testStr);
 
-        assertEquals(size + 1, table.size());
+        assertEquals(size + 1, table.rowCount());
         assertEquals(sb.toString(), table.toString());
 
     }
@@ -49,21 +44,21 @@ public class TestTable {
     @Test
     public void testAddRow_int() throws Exception {
         Table table = new Table("examples/t1.tbl");
-        int size = table.size();
+        int size = table.rowCount();
         String testStr = "1,3";
         StringBuilder sb = new StringBuilder(table.toString());
 
         sb.append(testStr + "\n");
         table.addRow(testStr);
 
-        assertEquals(size + 1, table.size());
+        assertEquals(size + 1, table.rowCount());
         assertEquals(sb.toString(), table.toString());
     }
 
     @Test
     public void testAddRow_float() throws Exception {
         Table table = new Table("examples/t3.tbl");
-        int size = table.size();
+        int size = table.rowCount();
         String testStr = "+8.7,-3.06";
         StringBuilder sb = new StringBuilder(table.toString());
 
@@ -71,7 +66,7 @@ public class TestTable {
 
         table.addRow(testStr);
 
-        assertEquals(size + 1, table.size());
+        assertEquals(size + 1, table.rowCount());
         assertEquals(sb.toString(), table.toString());
     }
 }
