@@ -37,15 +37,7 @@ public class Parse {
 //        }
 //
 //        eval(args[0]);
-        Pattern test = Pattern.compile("(\\S+)\\s+\\(\\s*(\\S+\\s+\\S+\\s*" +
-                "(?:,\\s*\\S+\\s+\\S+\\s*)*)\\)");
-
-        Matcher m = test.matcher("  tableName  (abc string , dog int)");
-
-        System.out.println(m.matches());
-        for (int i = 0; i <= m.groupCount(); i++)
-            System.out.println(m.group(i));
-        System.out.println(m.groupCount());
+        eval("select    x   +   y  as a, x+y as d   from table where dog > 3 and b > 3 and c < 4");
     }
 
     private static void eval(String query) {

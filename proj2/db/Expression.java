@@ -41,15 +41,14 @@ public class Expression {
     }
 
     private void parseEq(String expr) {
-        Pattern p = Pattern.compile("(.*) +as +(.*)");
+        Pattern p = Pattern.compile("(\\S+)\\s*[+\\-*/]\\s*(\\S+)(?:\\s+as\\s+(\\S*))");
         Matcher m = p.matcher(expr);
 
-        if (!m.matches()) throw new IllegalArgumentException("Expression \"" + expr + "\" is not valid.");
+        if (!m.matches()) throw new IllegalArgumentException("Expression \"" + expr + "\" is invalid.");
 
-        String[] substr = m.group(1).split("[+\\-*/]");
-        op1 = substr[0].trim();
-        op2 = substr[1].trim();
-        alias = m.group(2);
+        op1 = m.group(1);
+        op2 = m.group(2);
+        alias = m.group(3);
     }
 
     public Operation getType() {
@@ -70,8 +69,10 @@ public class Expression {
 
     public static void main(String[] args) throws Exception {
 
-        Expression exp = new Expression("x + a   as   god");
+        Expression exp = new Expression("column1 + 3.44  as bigdog");
 
+        System.out.println(exp.op1);
+        System.out.println(exp.op2);
         System.out.println(exp.alias);
     }
 }

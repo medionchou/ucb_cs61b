@@ -2,7 +2,8 @@ package db;
 
 
 import java.io.*;
-import java.lang.reflect.Array;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,12 +61,16 @@ public class Table {
 
         for (int i = 0; i < result.length; i++) {
             Type newColType = Type.isTypeMatched(result[i], header.getColumnType(i));
-            if (newColType == null) throw new IllegalArgumentException("Value " + result[i] + " in column " + (i + 1) + " does not match the column type.");
+            if (newColType == null) throw new IllegalArgumentException("Value " + result[i] + " in column " + (i + 1) + " does not match the column type \""+ header.getColumnType(i) +"\".");
 
             values[i] = new Value(result[i], newColType);
         }
 
         addRow(values);
+    }
+
+    public void deleteRow(int index) {
+
     }
 
     private void addRow(Value[] vals) {
@@ -97,7 +102,15 @@ public class Table {
         return header.getColumn(colName);
     }
 
-    public void store() {
+    public void store(String filename) {
+        try {
+            BufferedWriter bw = Files.newBufferedWriter(new File(filename).toPath(), Charset.defaultCharset());
+
+            bw.write(this.toString());
+            bw.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
 
     }
 
@@ -107,11 +120,25 @@ public class Table {
 
     public int colCount() { return header.colCount(); }
 
-    public Table join(int index, Table... table) {
+    public Table select(Table[] tables, Expression[] exprs, Condition[] conditions) {
+        Table temp = join(0, tables);
+
+        temp = select(temp, exprs);
+
+        return null;
+    }
+
+    private Table select(Table table, Expression[] exprs) {
+
+
+    }
+
+    private Table join(int index, Table... table) {
         if (index == table.length) return this;
 
         HashSet<ColumnName> visited = new HashSet<>();
         ArrayList<ColumnName> commonHeader = new ArrayList<>();
+        StringBuilder[] sb;
 
         for (ColumnName table1 : header) {
             for (ColumnName table2 : table[index].header) {
@@ -122,9 +149,8 @@ public class Table {
             }
         }
 
-        if (commonHeader.size() == 0) {
+        sb = merge(commonHeader, visited, this, table[0]);
 
-        } else merge(commonHeader, visited, this, table[0]);
         for (ColumnName cn : header) if (!visited.contains(cn)) commonHeader.add(cn);
         for (ColumnName cn : table[index].header) if (!visited.contains(cn)) commonHeader.add(cn);
 
@@ -137,17 +163,21 @@ public class Table {
             s[i] = cn.getColName();
             t[i] = cn.getType();
         }
+        Table newTable = new Table(s, t);
 
+        for (StringBuilder str: sb) {
+            newTable.addRow(str.toString());
+        }
 
-        return new Table(s, t).join(index + 1, table);
+        return newTable.join(index + 1, table);
     }
 
-    private void merge(ArrayList<ColumnName> common, HashSet<ColumnName> visited, Table tb1, Table tb2) {
-
+    private StringBuilder[] merge(ArrayList<ColumnName> common, HashSet<ColumnName> visited, Table tb1, Table tb2) {
         List<Pair> pairs = getMatchedColumns(common, tb1, tb2);
+        StringBuilder[] rawStr;
 
         if (pairs.size() > 0) {
-            StringBuilder[] rawStr = new StringBuilder[pairs.size()];
+            rawStr = new StringBuilder[pairs.size()];
 
             for (int i = 0; i < rawStr.length; i++) {
                 rawStr[i] = new StringBuilder();
@@ -159,13 +189,22 @@ public class Table {
                 }
                 rawStr[i].append(queryRow(pair.i, visited, tb1));
                 rawStr[i].append(queryRow(pair.j, visited, tb2));
-
                 rawStr[i].deleteCharAt(rawStr[i].length() - 1);
             }
-            for (int i = 0; i < rawStr.length; i++) {
-                System.out.println(rawStr[i]);
+        } else {
+            rawStr = new StringBuilder[tb1.rowCount() * tb2.rowCount()];
+
+            for (int i = 0; i < tb1.rows.size(); i++) {
+                for (int j = 0; j < tb2.rows.size(); j++) {
+                    rawStr[i+j] = new StringBuilder();
+                    rawStr[i].append(queryRow(i, visited, tb1));
+                    rawStr[i].append(queryRow(j, visited, tb2));
+                    rawStr[i].deleteCharAt(rawStr[i].length() - 1);
+                }
             }
         }
+
+        return rawStr;
     }
 
     private String queryRow(int index, HashSet<ColumnName> visited, Table tb) {
@@ -241,12 +280,8 @@ public class Table {
 
     public static void main(String[] args) throws Exception {
 
-        Table tb1 = new Table("examples/t1.tbl");
-        Table tb2 = new Table("examples/t2.tbl");
-
-
-
-        System.out.println(tb1.join(0, tb2, tb2));
+        Table tb = new Table("t1.tbl");
+        Column c = tb.getCol(0);
 
     }
 
