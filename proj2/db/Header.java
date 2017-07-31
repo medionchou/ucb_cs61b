@@ -9,7 +9,7 @@ import java.util.*;
 public class Header implements Iterable<ColumnName> {
 
     private LinkedHashMap<String, Column> headerMap;
-    private Type[] type;
+    private Type[] types;
     private ArrayList<ColumnName> colNameList;
 
 
@@ -19,7 +19,7 @@ public class Header implements Iterable<ColumnName> {
     }
 
     public Header(String[] colName, Type[] theType) {
-        type = theType;
+        types = theType;
         colNameList = new ArrayList<>();
         headerMap = new LinkedHashMap<>();
 
@@ -51,11 +51,18 @@ public class Header implements Iterable<ColumnName> {
         return colNameList.get(index);
     }
 
-    public int colCount() {return headerMap.size();}
-
-    public Type getColumnType(int col) {
-        return type[col];
+    public Type getColumnType(String colName) {
+        for (ColumnName cn : colNameList) {
+            if (cn.getColName().equals(colName)) return cn.getType();
+        }
+        return null;
     }
+
+    public Type getColumnType(int index) {
+        return types[index];
+    }
+
+    public int colCount() {return headerMap.size();}
 
     @Override
     public String toString() {

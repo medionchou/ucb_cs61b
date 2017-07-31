@@ -1,6 +1,5 @@
 package db;
 
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -31,7 +30,7 @@ public class Table {
         Scanner sc;
 
         if (file.isFile()) sc = new Scanner(file);
-        else sc = new Scanner(file);
+        else sc = new Scanner(tableFile);
 
         String buf;
         boolean firstLine = true;
@@ -51,7 +50,6 @@ public class Table {
     public Table(String[] colName, Type[] colType) {
         initTable(colName, colType);
     }
-
 
     public void addRow(String rowStr) {
         String[] result = rowStr.split(",");
@@ -111,30 +109,110 @@ public class Table {
         } catch (IOException e) {
             System.out.println(e);
         }
-
     }
 
     public int rowCount() {
         return rows.size();
     }
 
+    public Type getColumnType(String colName) {
+        Type type = header.getColumnType(colName);
+        if (type == null) type = Type.checkType(colName);
+        if (type == null) throw new NullPointerException("Specified column name not found or invalid literal value: '" + colName + "' .");
+        return type;
+    }
+
     public int colCount() { return header.colCount(); }
 
-    public Table select(Table[] tables, Expression[] exprs, Condition[] conditions) {
+    public Table select(Table[] tables, Expression[] exprs, Condition[] conditions) throws IOException {
         Table temp = join(0, tables);
 
         temp = select(temp, exprs);
+        temp = comparision(temp, conditions);
 
-        return null;
+        return temp;
     }
 
-    private Table select(Table table, Expression[] exprs) {
+    private Table comparision(Table table, Condition[] conditions) {
 
+        for (Condition condition : conditions) {
+            Column col1 = table.getCol(condition.getOp1());
+            Type type2 = table.getColumnType(condition.getOp2());
+            ArrayList<Integer> toBeDelete;
 
+            if (type2 == null) {
+                Column col2 = table.getCol(condition.getOp2());
+                toBeDelete = col1.comparison(col2, condition.getCO());
+            } else {
+                Value value2 = new Value(condition.getOp2(), type2);
+                toBeDelete = col1.comparison(value2, condition.getCO());
+            }
+
+            for (Integer i : toBeDelete) {
+                System.out.println(i);
+            }
+        }
+
+        return table;
+    }
+
+    private Table select(Table table, Expression[] exprs) throws IOException {
+        HashSet<String> colNameSet = new HashSet<>();
+        ArrayList<Column> cols = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+
+        for (Expression expr : exprs) {
+            switch (expr.getOpType()) {
+                case COLUMN_NAME:
+                    if (colNameSet.contains(expr.getOp1())) continue;
+
+                    Type type = table.getColumnType(expr.getOp1());
+                    sb.append(colNameSet).append(" ").append(type).append(",");
+                    cols.add(table.getCol(expr.getOp1()));
+
+                    break;
+                case WILDCARD:
+                    for (ColumnName cn : table.header) {
+                        if (!colNameSet.contains(cn.getColName())) {
+                            sb.append(cn.toString()).append(",");
+                            cols.add(table.getCol(cn.getColName()));
+                        }
+                    }
+                    break;
+                default:
+                    Type type1 = table.getColumnType(expr.getOp1());
+                    Type type2 = table.getColumnType(expr.getOp2());
+                    Type resultType = Type.evaluateType(type1, type2);
+                    sb.append(expr.getAlias()).append(" ").append(resultType).append(",");
+
+                    Column col1 = table.getCol(expr.getOp1());
+
+                    if (Type.checkType(expr.getOp2()) == null) {
+                        cols.add(col1.operate(table.getCol(expr.getOp2()), expr.getOpType()));
+                    }
+                    else {
+                        cols.add(col1.operate(new Value(expr.getOp2(), type2), expr.getOpType()));
+                    }
+                    break;
+            }
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        Table newTable = new Table(sb.toString());
+
+        for (int i = 0; i < cols.get(0).size(); i++) {
+            Value[] values = new Value[cols.size()];
+            for (int j = 0; j < cols.size(); j++) {
+                values[j] = cols.get(j).getItem(i);
+            }
+            newTable.addRow(values);
+        }
+
+        return newTable;
     }
 
     private Table join(int index, Table... table) {
-        if (index == table.length) return this;
+        if (table == null || index == table.length) return this;
+
 
         HashSet<ColumnName> visited = new HashSet<>();
         ArrayList<ColumnName> commonHeader = new ArrayList<>();
@@ -153,7 +231,6 @@ public class Table {
 
         for (ColumnName cn : header) if (!visited.contains(cn)) commonHeader.add(cn);
         for (ColumnName cn : table[index].header) if (!visited.contains(cn)) commonHeader.add(cn);
-
 
         String[] s = new String[commonHeader.size()];
         Type[] t = new Type[commonHeader.size()];
@@ -280,8 +357,18 @@ public class Table {
 
     public static void main(String[] args) throws Exception {
 
-        Table tb = new Table("t1.tbl");
-        Column c = tb.getCol(0);
+        Table tb = new Table("examples/t1.tbl");
+        Expression[] exprs = {new Expression("x + y as pig")};
+        Condition[] conditions = {new Condition("pig >= 20")};
+
+
+        Table t1 = tb.select(null, exprs, conditions);
+        System.out.println(t1);
+
+    }
+
+    public static void demo(Table... tb) {
+        System.out.println(tb.length);
 
     }
 

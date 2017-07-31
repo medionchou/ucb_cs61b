@@ -6,7 +6,7 @@ import db.Expression.Operation;
 /**
  * Created by medionchou on 2017/5/27.
  */
-public class Value {
+public class Value implements Comparable<Value>{
 
     private String content;
     private Type type;
@@ -20,10 +20,10 @@ public class Value {
 
     public Value evaluate(Value o, Operation op) {
         String result = "";
-        Type newType = Type.evaluateType(this, o);
+        Type newType = Type.evaluateType(this.getType(), o.getType());
 
         if (!op.equals(Operation.ADD) && newType.equals(Type.STRING))
-            throw new UnsupportedOperationException(Type.STRING + " only supports concatenation.");
+            throw new UnsupportedOperationException(Type.STRING + " only supports concatenation(+).");
 
         if (content.equals("NaN") || o.content.equals("NaN"))
             return new Value("NaN", newType);
@@ -84,11 +84,11 @@ public class Value {
         return val;
     }
 
-    public int intVal() {
+    public Integer intVal() {
         return Integer.parseInt(content);
     }
 
-    public float floatVal() {
+    public Float floatVal() {
         return Float.parseFloat(content);
     }
 
@@ -149,5 +149,19 @@ public class Value {
 
         System.out.println(" " + o);
 
+    }
+
+    @Override
+    public int compareTo(Value o) {
+        if (this == o) return 0;
+
+        if (this.type != o.type) {
+            if (this.type == Type.STRING || o.type == Type.STRING) throw new UnsupportedOperationException("Type 'string' can only be compared with 'string' type");
+            else return floatVal().compareTo(o.floatVal());
+        } else {
+            if (this.type == Type.INTEGER) return intVal().compareTo(o.intVal());
+            else if (this.type == Type.FLOAT) return floatVal().compareTo(o.floatVal());
+            else return content.compareTo(o.content);
+        }
     }
 }

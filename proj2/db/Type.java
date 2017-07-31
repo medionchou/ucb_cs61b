@@ -37,30 +37,36 @@ public enum Type {
     }
 
     public static Type isTypeMatched(String content, Type colType) {
-        Type curType = null;
-        if (content.length() == 0) return null;
+        Type curType = checkType(content);
 
-        if (content.charAt(0) == '\'') curType = Type.STRING;
-        else {
-            if (content.equals("NOVALUE") || content.equals("NaN")) return colType;
-            else if (INTEGER_MATCHER.matcher(content).matches()) curType = Type.INTEGER;
-            else if (FLOAT_MATCHER.matcher(content).matches()) curType = Type.FLOAT;
-        }
+        if (content.equals("NOVALUE") || content.equals("NaN")) return colType;
+
         if (curType == colType) return curType;
         else return null;
     }
 
-    public static Type evaluateType(Value v1, Value v2) {
+    public static Type checkType(String content) {
+        if (content.length() == 0) throw new IllegalArgumentException("empty string '" + content + "' do not have type");
+
+        if (content.charAt(0) == '\'') return Type.STRING;
+        else {
+            if (INTEGER_MATCHER.matcher(content).matches()) return Type.INTEGER;
+            else if (FLOAT_MATCHER.matcher(content).matches()) return Type.FLOAT;
+        }
+
+        return null;
+    }
+
+    public static Type evaluateType(Type v1, Type v2) {
         Type newType;
 
-        if (v1.getType() == v2.getType()) newType = v1.getType();
-        else if ((v1.getType().equals(Type.INTEGER) && v2.getType().equals(Type.FLOAT)) ||
-                    (v1.getType().equals(Type.FLOAT) && v2.getType().equals(Type.INTEGER))) {
+        if (v1 == v2) newType = v1;
+        else if ((v1.equals(Type.INTEGER) && v2.equals(Type.FLOAT)) ||
+                    (v1.equals(Type.FLOAT) && v2.equals(Type.INTEGER))) {
             newType = Type.FLOAT;
         }
         else throw new UnsupportedOperationException(Type.STRING +
                         " is only allowed to operate with 'string' type.");
-
 
         return newType;
     }

@@ -26,10 +26,10 @@ public class Condition {
 
         if (cond.indexOf("==") > 0) co = ComparisonOperator.EQ;
         else if  (cond.indexOf("!==") > 0) co = ComparisonOperator.NEQ;
-        else if  (cond.indexOf("<") > 0) co = ComparisonOperator.LT;
-        else if  (cond.indexOf(">") > 0) co = ComparisonOperator.GT;
         else if  (cond.indexOf("<=") > 0) co = ComparisonOperator.LET;
         else if  (cond.indexOf(">=") > 0) co = ComparisonOperator.GET;
+        else if  (cond.indexOf("<") > 0) co = ComparisonOperator.LT;
+        else if  (cond.indexOf(">") > 0) co = ComparisonOperator.GT;
         else throw new IllegalArgumentException("Unexpected argument \"" + cond + "\".");
 
         parseCond(cond);

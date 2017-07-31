@@ -41,7 +41,7 @@ public class Expression {
     }
 
     private void parseEq(String expr) {
-        Pattern p = Pattern.compile("(\\S+)\\s*[+\\-*/]\\s*(\\S+)(?:\\s+as\\s+(\\S*))");
+        Pattern p = Pattern.compile("(\\S+)\\s*[+\\-*/]\\s*(.+?)(?:\\s+as\\s+(\\S*))");
         Matcher m = p.matcher(expr);
 
         if (!m.matches()) throw new IllegalArgumentException("Expression \"" + expr + "\" is invalid.");
@@ -51,7 +51,7 @@ public class Expression {
         alias = m.group(3);
     }
 
-    public Operation getType() {
+    public Operation getOpType() {
         return type;
     }
 
@@ -69,9 +69,9 @@ public class Expression {
 
     public static void main(String[] args) throws Exception {
 
-        Expression exp = new Expression("column1 + 3.44  as bigdog");
+        Expression exp = new Expression("*");
 
-        System.out.println(exp.op1);
+        System.out.println(exp.getOpType());
         System.out.println(exp.op2);
         System.out.println(exp.alias);
     }
