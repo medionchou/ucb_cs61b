@@ -12,8 +12,9 @@ import java.util.List;
  */
 public class Column extends DataList {
 
-
-
+    public void removeItem(int index) {
+        values.remove(index);
+    }
 
     public Column operate(Column col, Expression.Operation op) {
         Column newColumn = new Column();
@@ -94,5 +95,13 @@ public class Column extends DataList {
         }
 
         return indices;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < values.size(); i++) {
+            sb.append(values)
+        }
     }
 }

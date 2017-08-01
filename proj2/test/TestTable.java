@@ -2,6 +2,7 @@ package test;
 
 
 import db.Column;
+import db.Expression;
 import db.Table;
 import org.junit.Test;
 
@@ -68,5 +69,17 @@ public class TestTable {
 
         assertEquals(size + 1, table.rowCount());
         assertEquals(sb.toString(), table.toString());
+    }
+
+    @Test
+    public void testSelect_op() throws Exception {
+        Table fansTable = new Table("examples/fans.tbl");
+        Table teamsTable = new Table("examples/teams.tbl");
+        Expression[] exprs = { new Expression("TeamName + Stadium as MS"), new Expression("Mascot"), new Expression("Stadium")};
+
+
+        Table newT = fansTable.select(new Table[] {teamsTable}, exprs, null);
+
+        System.out.println(newT);
     }
 }

@@ -30,18 +30,18 @@ public class Value implements Comparable<Value>{
         else if (content.equals("NOVALUE") && o.content.equals("NOVALUE"))
             return new Value("NOVALUE", newType);
 
-        content = convert(content, newType);
-        o.content = convert(o.content, newType);
+        String thisContent = convert(content, newType);
+        String thatContent = convert(o.content, newType);
 
         switch (newType) {
             case INTEGER:
-                result = eval(o.content, op, newType);
+                result = eval(thatContent, op, newType);
                 break;
             case FLOAT:
-                result = eval(o.content, op, newType);
+                result = eval(thatContent, op, newType);
                 break;
             case STRING:
-                result = "'" + content.substring(1, content.length() - 1) + o.content.substring(1, o.content.length() - 1) + "'";
+                result = "'" + thisContent.substring(1, thisContent.length() - 1) + thatContent.substring(1, thatContent.length() - 1) + "'";
                 break;
         }
 

@@ -1,5 +1,7 @@
 package db;
 
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -67,8 +69,9 @@ public class Table {
         addRow(values);
     }
 
-    public void deleteRow(int index) {
-
+    private void deleteRow(int index) {
+        rows.remove(index);
+        header.removeColumns(index);
     }
 
     private void addRow(Value[] vals) {
@@ -135,6 +138,8 @@ public class Table {
 
     private Table comparision(Table table, Condition[] conditions) {
 
+        if (conditions == null) return table;
+
         for (Condition condition : conditions) {
             Column col1 = table.getCol(condition.getOp1());
             Type type2 = table.getColumnType(condition.getOp2());
@@ -148,8 +153,8 @@ public class Table {
                 toBeDelete = col1.comparison(value2, condition.getCO());
             }
 
-            for (Integer i : toBeDelete) {
-                System.out.println(i);
+            for (int i = toBeDelete.size() - 1; i >= 0; i--) {
+                table.deleteRow(toBeDelete.get(i));
             }
         }
 
@@ -165,21 +170,24 @@ public class Table {
             switch (expr.getOpType()) {
                 case COLUMN_NAME:
                     if (colNameSet.contains(expr.getOp1())) continue;
+                    colNameSet.add(expr.getOp1());
 
                     Type type = table.getColumnType(expr.getOp1());
-                    sb.append(colNameSet).append(" ").append(type).append(",");
+                    sb.append(expr.getOp1()).append(" ").append(type).append(",");
                     cols.add(table.getCol(expr.getOp1()));
-
                     break;
                 case WILDCARD:
                     for (ColumnName cn : table.header) {
                         if (!colNameSet.contains(cn.getColName())) {
+                            colNameSet.add(cn.getColName());
                             sb.append(cn.toString()).append(",");
                             cols.add(table.getCol(cn.getColName()));
                         }
                     }
                     break;
-                default:
+                default:  //ADD, SUB, MUL, DIV operation
+                    if (colNameSet.contains(expr.getAlias())) continue;
+                    colNameSet.add(expr.getAlias());
                     Type type1 = table.getColumnType(expr.getOp1());
                     Type type2 = table.getColumnType(expr.getOp2());
                     Type resultType = Type.evaluateType(type1, type2);
@@ -356,20 +364,5 @@ public class Table {
     }
 
     public static void main(String[] args) throws Exception {
-
-        Table tb = new Table("examples/t1.tbl");
-        Expression[] exprs = {new Expression("x + y as pig")};
-        Condition[] conditions = {new Condition("pig >= 20")};
-
-
-        Table t1 = tb.select(null, exprs, conditions);
-        System.out.println(t1);
-
     }
-
-    public static void demo(Table... tb) {
-        System.out.println(tb.length);
-
-    }
-
 }

@@ -38,6 +38,12 @@ public class Header implements Iterable<ColumnName> {
         }
     }
 
+    public void removeColumns(int index) {
+        for (Column col : headerMap.values()) {
+            col.removeItem(index);
+        }
+    }
+
     public Column getColumn(String colName) {
         return headerMap.get(colName);
     }
